@@ -1,0 +1,18 @@
+{
+  "name": "SocketIO",
+  "version": "1.0.0",
+  "description": "SocketTestModule",
+  "main": "app.js",
+  "author": "kennen",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "consolidate": "^0.15.1",
+    "cookie-parser": "^1.4.3",
+    "express": "4.15.2",
+    "jquery": "^3.3.1",
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
+    "typings": "^2.1.1"
+  }
+}
