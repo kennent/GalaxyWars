@@ -56,23 +56,17 @@ io.on('connection', (socket) => {
       var _ID = getUserID();
       var _data = {name: data.name, ID:_ID, sID: data.sId};
       matchingUserList.push(_data);
-      lobby.push(data.sID);
       socket.emit('saveUserInfo', _data);
     }
 
     if (matchingUserList.length == 4) {
       if (!isStarted) {
-        roomObject[lobby[0]+lobby[1]+lobby[2]+lobby[3]] = new roomObject(lobby[0], lobby[1], lobby[2], lobby[3]);
         io.sockets.emit('start game', matchingUserList);
       }
       else {
         socket.emit('started game');
       }
     }
-  });
-
-  socket.on('ready', (data) => {
-    roomObjects[data.roomname].ready(data, socket.id);
   });
 
   socket.on('updateUser', data => {
@@ -85,19 +79,27 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('reset', () => {
+    tempCnt = matchingUserList.length
+    for(var i = 0; i < tempCnt;i++)
+      matchingUserList.pop();
+    for(var i = 0; i < 4;i++)
+      matchingUserID[i] = i + 1;
+
+    isStarted = false;
+  });
   // update
 
   socket.on('update', (data) => {
-    try {
-      roomObjects["TestRoom"].userObjects[socket.id].x = data.x;
-      roomObjects["TestRoom"].userObjects[socket.id].y = data.y;
-      roomObjects["TestRoom"].userObjects[socket.id].carbon = data.carbon;
-      roomObjects["TestRoom"].userObjects[socket.id].isDead = data.isDead;
-      roomObjects["TestRoom"].userObjects[socket.id].rank = data.rank;
-      roomObjects["TestRoom"].userObjects[socket.id].ID = data.ID;
-    } catch (e) {
-
-    }
+    console.log(data);
+    if (data.ID == 1)
+      io.sockets.emit('update1', data);
+    if (data.ID == 2)
+      io.sockets.emit('update2', data);
+    if (data.ID == 3)
+      io.sockets.emit('update3', data);
+    if (data.ID == 4)
+      io.sockets.emit('update4', data);
   });
 
   socket.on('disconnect', () => {
@@ -107,13 +109,6 @@ io.on('connection', (socket) => {
     for(var i = 0; i < 4;i++)
       matchingUserID[i] = i + 1;
     io.sockets.emit('updateUserList');
-  });
-
-  setInterval(() => {
-    for (let room in roomObjects) {
-      if (matchingUserList.length == 4)
-        roomObjects[room].update();
-    }
   });
 
   // InGame socket event
@@ -169,27 +164,6 @@ io.on('connection', (socket) => {
       userRoomInfo[user3] = this.roomname
       userRoomInfo[user4] = this.roomname
       console.log('making room : '+this.roomname);
-    }
-    update(){
-      io.sockets.sockets[this.users[0]].emit('update',this.userObjects);
-      io.sockets.sockets[this.users[1]].emit('update',this.userObjects);
-      io.sockets.sockets[this.users[2]].emit('update',this.userObjects);
-      io.sockets.sockets[this.users[3]].emit('update',this.userObjects);
-    }
-    ready(data, sID, type){
-      this.userObjects[sID] = new userObject(data.x,data.y,data.color)
-      console.log('this.userObjects[this.users[0]] : '+this.userObjects[this.users[0]]);
-      console.log('this.userObjects[this.users[1]] : '+this.userObjects[this.users[1]]);
-      console.log('this.userObjects[this.users[3]] : '+this.userObjects[this.users[3]]);
-      console.log('this.userObjects[this.users[4]] : '+this.userObjects[this.users[4]]);
-      if(this.userObjects[this.users[0]] != undefined&&this.userObjects[this.users[1]] != undefined&&this.userObjects[this.users[2]] != undefinedthis.userObjects[this.users[3]] != undefined){
-        io.sockets.sockets[this.users[0]].emit('ready');
-        io.sockets.sockets[this.users[1]].emit('ready');
-        io.sockets.sockets[this.users[2]].emit('ready');
-        io.sockets.sockets[this.users[3]].emit('ready');
-        this.isRoomReady = true
-        console.log(this.roomname + " : it's ready");
-      }
     }
     // disconnect(user){
     //   if(io.sockets.sockets[this.users[3]]!=undefined)

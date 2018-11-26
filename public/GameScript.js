@@ -243,9 +243,12 @@ class Line extends Sprite {
  * 
  * */
 class Galaxy extends GameObject {
-    constructor(game, galaxyType, galaxyName) {
+    constructor(game, galaxyType, galaxyName, gID = __gID) {
         super();
         this.game = game;
+
+        this.gID = gID;
+        __gID++;
 
         this.x = 0; this.y = 0; //해당 오브젝트가 그려지는 X,Y좌표
         this.centerX = 0; this.centerY = 0; //해당 오브젝트의 중심
@@ -319,15 +322,6 @@ class Galaxy extends GameObject {
             this.generateTime = 0;
             this.resourceGenerate(this.generativeForce);
         }
-
-        // socket.emit("update", {
-        //     x: this.x,
-        //     y: this.y,
-        //     generateTime: this.generateTime,
-        //     owner: this.owner,
-        //     id: socket.id,
-        //     type: "updateGalaxy"
-        // });
     }
 
     //데미지(데미지량, 누가 때렸는지)
@@ -428,6 +422,7 @@ class SpaceShip extends GameObject {
     constructor(game, spaceshipType, spaceshipName) {
         super();
         this.game = game;
+        this.spaceshipID = 0
 
         this.x = 0; this.y = 0;
         this.centerX = 0; this.centerY = 0;
@@ -449,7 +444,7 @@ class SpaceShip extends GameObject {
         this.attackTerm = 1; this.attack = 10;
         this.attackTime = 1;
 
-            // max helath ~ rot : 바뀌는 값
+            // max health ~ rot : 바뀌는 값
 
         ///최대 체력, 현재 체력
         this.maxHealth = 200;  this.health = this.maxHealth;
@@ -516,29 +511,6 @@ class SpaceShip extends GameObject {
         this.attackState();
         this.setVector();
         this.movement();
-
-        // socket.emit('update', {
-        //     x: this.x,
-        //     y: this.y,
-        //     targetX: this.targetX,
-        //     targetY: this.targetY,
-        //     attack: this.attack,
-        //     maxHelath: this.maxHealth,
-        //     health: this.health,
-        //     useCoin: this.useCoin,
-        //     moveSpeed: this.moveSpeed,
-        //     rot: this.rot,
-        //     autoReload: this.autoReload,
-        //     avoid: this.avoid,
-        //     mine: this.mine,
-        //     engine: this.engine,
-        //     isAttacking: this.isAttacking,
-        //     canUse: this.canUse,
-        //     useTime: this.useTime,
-        //     useful: this.useful,
-        //     id: socket.id,
-        //     type: "updateSpaceShip"
-        // });
     }
 
     //아픔..
@@ -865,14 +837,6 @@ class SpaceMine extends GameObject{
             }
             this.collision();
         }
-        // socket.emit('update', {
-        //     x: this.x,
-        //     y: this.y,
-        //     target: this.target,
-        //     useful: this.useful,
-        //     id: socket.id,
-        //     type: "updateSpaceMine"
-        // });
     }
 
     //타겟을 향해 가기위한 벡터 계산
@@ -956,11 +920,6 @@ class ChemicalBullet extends GameObject{
         this.useful = false;
 
         this.collision();
-        // socket.emit("update", {
-        //     useful: this.useful,
-        //     id: socket.id,
-        //     type: "updateBullet"
-        // });
     }
     //충돌 계산
     collision(){
@@ -1550,16 +1509,6 @@ class Camera extends GameObject {
         if(this.y > 0) this.y = 0;
         if(this.y < -UntitledGame.config.MAP_HEIGHT + this.game.canvas.height - 130) 
         this.y = -UntitledGame.config.MAP_HEIGHT + this.game.canvas.height - 130;
-
-        socket.emit("update", {
-            x: this.x,
-            y: this.y,
-            carbon: this.carbon,
-            isDead: this.isDead,
-            rank: this.rank,
-            id: socket.id,
-            type: "updateCamera"
-        });
     }
 
     carbonAdd(num){
@@ -1944,77 +1893,266 @@ class UntitledGame {
     }
 
     socketUpdate() {
-        for (let i in copyedUserObjects) {
-            console.log(copyedUserObjects[i].carbon);
-            if (copyedUserObjects[i].ID == 1 && copyedUserObjects[i].ID != localID) {
-                this.camera2.x = copyedUserObjects[i].x;
-                this.camera2.y = copyedUserObjects[i].y;
-                this.camera2.carbon = copyedUserObjects[i].carbon;
-                this.camera2.isDead = copyedUserObjects[i].isDead;
-                this.camera2.rank = copyedUserObjects[i].rank;
-            } else if (copyedUserObjects[i].ID == 2 && copyedUserObjects[i].ID != localID) {
-                this.camera2.x = copyedUserObjects[i].x;
-                this.camera2.y = copyedUserObjects[i].y;
-                this.camera2.carbon = copyedUserObjects[i].carbon;
-                this.camera2.isDead = copyedUserObjects[i].isDead;
-                this.camera2.rank = copyedUserObjects[i].rank;
-            } else if (copyedUserObjects[i].ID == 3 && copyedUserObjects[i].ID != localID) {
-                this.camera3.x = copyedUserObjects[i].x;
-                this.camera3.y = copyedUserObjects[i].y;
-                this.camera3.carbon = copyedUserObjects[i].carbon;
-                this.camera3.isDead = copyedUserObjects[i].isDead;
-                this.camera3.rank = copyedUserObjects[i].rank;
-            } else if (copyedUserObjects[i].ID == 4 && copyedUserObjects[i].ID != localID) {
-                this.camera4.x = copyedUserObjects[i].x;
-                this.camera4.y = copyedUserObjects[i].y;
-                this.camera4.carbon = copyedUserObjects[i].carbon;
-                this.camera4.isDead = copyedUserObjects[i].isDead;
-                this.camera4.rank = copyedUserObjects[i].rank;
+        if (localID == 1) {
+            var myGalaxy = [];
+            var mySpaceShip = [];
+            for (var i = 0; i < this.galaxys.length;i++) {
+                if (this.galaxys[i].owner == localID) {
+                    var tmp = {
+                        gID: this.galaxys[i].gID,
+                        health: this.galaxys[i].defensiveForce,
+                        owner: localID
+                    };
+                    myGalaxy.push(tmp);
+                }
             }
-        }
-        switch (localID) {
-            case 1: 
-                socket.emit("update", {
+            for (var i = 0; i < this.spaceships.length;i++) {
+                if (this.spaceships[i].owner == localID) {
+                    var tmp = {
+                        ssID: this.spaceships[i].spaceshipID,
+                        health: this.spaceships[i].health,
+                        x: this.spaceships[i].x,
+                        y: this.spaceships[i].y,
+                        owner: localID
+                    }
+                    mySpaceShip.push(tmp);
+                }
+            }
+            socket.emit("update", {
+                camera: {
+                    carbon: this.camera1.carbon,
                     x: this.camera1.x,
                     y: this.camera1.y,
-                    carbon: this.camera1.carbon,
                     isDead: this.camera1.isDead,
-                    rank: this.camera1.rank,
-                    ID: localID
-                });
-            break;
-            case 2: 
-                socket.emit("update", {
+                    rank: this.camera1.rank
+                },
+                spaceShips: mySpaceShip,
+                galaxys: myGalaxy,
+                ID: localID
+            });
+        }
+        
+        if (localID == 2) {
+            var myGalaxy = [];
+            var mySpaceShip = [];
+            for (var i = 0; i < this.galaxys.length;i++) {
+                if (this.galaxys[i].owner == localID) {
+                    var tmp = {
+                        gID: this.galaxys[i].gID,
+                        health: this.galaxys[i].defensiveForce,
+                        owner: localID
+                    };
+                    myGalaxy.push(tmp);
+                }
+            }
+            for (var i = 0; i < this.spaceships.length;i++) {
+                if (this.spaceships[i].owner == localID) {
+                    var tmp = {
+                        ssID: this.spaceships[i].spaceshipID,
+                        health: this.spaceships[i].health,
+                        x: this.spaceships[i].x,
+                        y: this.spaceships[i].y,
+                        owner: localID
+                    }
+                    mySpaceShip.push(tmp);
+                }
+            }
+            socket.emit("update", {
+                camera: {
+                    carbon: this.camera2.carbon,
                     x: this.camera2.x,
                     y: this.camera2.y,
-                    carbon: this.camera2.carbon,
                     isDead: this.camera2.isDead,
-                    rank: this.camera2.rank,
-                    ID: localID
-                });
-            break;
-            case 3: 
-                socket.emit("update", {
+                    rank: this.camera2.rank
+                },
+                spaceShips: mySpaceShip,
+                galaxys: myGalaxy,
+                ID: localID
+            });
+        }
+        
+        if (localID == 3) {
+            var myGalaxy = [];
+            var mySpaceShip = [];
+            for (var i = 0; i < this.galaxys.length;i++) {
+                if (this.galaxys[i].owner == localID) {
+                    var tmp = {
+                        gID: this.galaxys[i].gID,
+                        health: this.galaxys[i].defensiveForce,
+                        owner: localID
+                    };
+                    myGalaxy.push(tmp);
+                }
+            }
+            for (var i = 0; i < this.spaceships.length;i++) {
+                if (this.spaceships[i].owner == localID) {
+                    var tmp = {
+                        ssID: this.spaceships[i].spaceshipID,
+                        health: this.spaceships[i].health,
+                        x: this.spaceships[i].x,
+                        y: this.spaceships[i].y,
+                        owner: localID
+                    }
+                    mySpaceShip.push(tmp);
+                }
+            }
+            socket.emit("update", {
+                camera: {
+                    carbon: this.camera3.carbon,
                     x: this.camera3.x,
                     y: this.camera3.y,
-                    carbon: this.camera3.carbon,
                     isDead: this.camera3.isDead,
-                    rank: this.camera3.rank,
-                    ID: localID
-                });
-            break;
-            case 4: 
-                socket.emit("update", {
+                    rank: this.camera3.rank
+                },
+                spaceShips: mySpaceShip,
+                galaxys: myGalaxy,
+                ID: localID
+            });
+        }
+        
+        if (localID == 4) {
+            var myGalaxy = [];
+            var mySpaceShip = [];
+            for (var i = 0; i < this.galaxys.length;i++) {
+                if (this.galaxys[i].owner == localID) {
+                    var tmp = {
+                        gID: this.galaxys[i].gID,
+                        health: this.galaxys[i].defensiveForce,
+                        owner: localID
+                    };
+                    myGalaxy.push(tmp);
+                }
+            }
+            for (var i = 0; i < this.spaceships.length;i++) {
+                if (this.spaceships[i].owner == localID) {
+                    var tmp = {
+                        ssID: this.spaceships[i].spaceshipID,
+                        health: this.spaceships[i].health,
+                        x: this.spaceships[i].x,
+                        y: this.spaceships[i].y,
+                        owner: localID
+                    }
+                    mySpaceShip.push(tmp);
+                }
+            }
+            socket.emit("update", {
+                camera: {
+                    carbon: this.camera4.carbon,
                     x: this.camera4.x,
                     y: this.camera4.y,
-                    carbon: this.camera4.carbon,
                     isDead: this.camera4.isDead,
-                    rank: this.camera4.rank,
-                    ID: localID
-                });
-            break;
+                    rank: this.camera4.rank
+                },
+                spaceShips: mySpaceShip,
+                galaxys: myGalaxy,
+                ID: localID
+            });
         }
+        if (localID != 1 && updateData1 != undefined) {
+            this.camera1.carbon = updateData1.camera.carbon;
+            this.camera1.x = updateData1.camera.x;
+            this.camera1.y = updateData1.camera.y;
+            this.camera1.isDead = updateData1.camera.isDead;
+            this.camera1.rank = updateData1.camera.rank;
 
+            for (var i = 0; i < updateData1.spaceShips.length;i++) {
+                for (var j = 0; j < this.spaceships.length;j++) {
+                    console.log(j + " : " + this.spaceships[j])
+                    if (this.spaceships[j].spaceshipID == updateData1.spaceShips[i].ssID) {
+                        this.spaceships[j].owner = updateData1.spaceShips[i].owner;
+                        this.spaceships[j].health = updateData1.spaceShips[i].health;
+                        this.spaceships[j].x = updateData1.spaceShips[i].x;
+                        this.spaceships[j].y = updateData1.spaceShips[i].y;
+                    }
+                }
+            }
+            for (var i = 0; i < updateData1.galaxys.length;i++) {
+                for (var j = 0; j < this.galaxys.length;j++) {
+                    if (this.galaxys[j].gID == updateData1.galaxys[i].gID) {
+                        this.galaxys[j].owner = updateData1.galaxys[i].owner;
+                        this.galaxys[j].defensiveForce = updateData1.galaxys[i].health;
+                    }
+                }
+            }
+        }
+        if (localID != 2 && updateData2 != undefined) {
+            this.camera2.carbon = updateData2.camera.carbon;
+            this.camera2.x = updateData2.camera.x;
+            this.camera2.y = updateData2.camera.y;
+            this.camera2.isDead = updateData2.camera.isDead;
+            this.camera2.rank = updateData2.camera.rank;
+
+            for (var i = 0; i < updateData2.spaceShips.length;i++) {
+                for (var j = 0; j < this.spaceships.length;j++) {
+                    if (this.spaceships[j].spaceshipID == updateData2.spaceShips[i].ssID) {
+                        this.spaceships[j].owner = updateData2.spaceShips[i].owner;
+                        this.spaceships[j].health = updateData2.spaceShips[i].health;
+                        this.spaceships[j].x = updateData2.spaceShips[i].x;
+                        this.spaceships[j].y = updateData2.spaceShips[i].y;
+                    }
+                }
+            }
+            for (var i = 0; i < updateData2.galaxys.length;i++) {
+                for (var j = 0; j < this.galaxys.length;j++) {
+                    if (this.galaxys[j].gID == updateData2.galaxys[i].gID) {
+                        this.galaxys[j].owner = updateData2.galaxys[i].owner;
+                        this.galaxys[j].defensiveForce = updateData2.galaxys[i].health;
+                    }
+                }
+            }
+        }
+        if (localID != 3 && updateData3 != undefined) {
+            this.camera3.carbon = updateData3.camera.carbon;
+            this.camera3.x = updateData3.camera.x;
+            this.camera3.y = updateData3.camera.y;
+            this.camera3.isDead = updateData3.camera.isDead;
+            this.camera3.rank = updateData3.camera.rank;
+
+            for (var i = 0; i < updateData3.spaceShips.length;i++) {
+                for (var j = 0; j < this.spaceships.length;j++) {
+                    if (this.spaceships[j].spaceshipID == updateData3.spaceShips[i].ssID) {
+                        this.spaceships[j].owner = updateData3.spaceShips[i].owner;
+                        this.spaceships[j].health = updateData3.spaceShips[i].health;
+                        this.spaceships[j].x = updateData3.spaceShips[i].x;
+                        this.spaceships[j].y = updateData3.spaceShips[i].y;
+                    }
+                }
+            }
+            for (var i = 0; i < updateData3.galaxys.length;i++) {
+                for (var j = 0; j < this.galaxys.length;j++) {
+                    if (this.galaxys[j].gID == updateData3.galaxys[i].gID) {
+                        this.galaxys[j].owner = updateData3.galaxys[i].owner;
+                        this.galaxys[j].defensiveForce = updateData3.galaxys[i].health;
+                    }
+                }
+            }
+        }
+        if (localID != 4 && updateData4 != undefined) {
+            this.camera4.carbon = updateData4.camera.carbon;
+            this.camera4.x = updateData4.camera.x;
+            this.camera4.y = updateData4.camera.y;
+            this.camera4.isDead = updateData4.camera.isDead;
+            this.camera4.rank = updateData4.camera.rank;
+
+            for (var i = 0; i < updateData4.spaceShips.length;i++) {
+                for (var j = 0; j < this.spaceships.length;j++) {
+                    if (this.spaceships[j].spaceshipID == updateData4.spaceShips[i].ssID) {
+                        this.spaceships[j].owner = updateData4.spaceShips[i].owner;
+                        this.spaceships[j].health = updateData4.spaceShips[i].health;
+                        this.spaceships[j].x = updateData4.spaceShips[i].x;
+                        this.spaceships[j].y = updateData4.spaceShips[i].y;
+                    }
+                }
+            }
+            for (var i = 0; i < updateData4.galaxys.length;i++) {
+                for (var j = 0; j < this.galaxys.length;j++) {
+                    if (this.galaxys[j].gID == updateData4.galaxys[i].gID) {
+                        this.galaxys[j].owner = updateData4.galaxys[i].owner;
+                        this.galaxys[j].defensiveForce = updateData4.galaxys[i].health;
+                    }
+                }
+            }
+        }
     }
 
     scheduleNextUpdate() {
@@ -2149,6 +2287,8 @@ class UntitledGame {
                             this.spaceships.push(newSpaceShip);
                             newSpaceShip.x = g.centerX;  newSpaceShip.y = g.centerY;
                             newSpaceShip.owner = this.playerID;
+                            newSpaceShip.spaceshipID = idCount++;
+                            console.log("id : " + newSpaceShip.spaceshipID)
                             newSpaceShip.targetX = g.centerX;  newSpaceShip.targetY = g.centerY;
                             this.spaceShipSetting = false;
                             this.ExplainUI.explainSet("", 0.1);
@@ -2338,20 +2478,28 @@ class UntitledGame {
         var newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera1.playerName); this.spaceships.push(newSpaceShip);
         newSpaceShip.x = 450;  newSpaceShip.y = 450; newSpaceShip.owner = 1;
         newSpaceShip.targetX = 450;  newSpaceShip.targetY = 450;
+        newSpaceShip.spaceshipID = idCount++;
+        console.log("id : " + newSpaceShip.spaceshipID)
         
         newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera2.playerName); this.spaceships.push(newSpaceShip);
         newSpaceShip.x = UntitledGame.config.MAP_WIDTH - 570;  newSpaceShip.y = 450; newSpaceShip.owner = 2;
         newSpaceShip.targetX = UntitledGame.config.MAP_WIDTH - 570;  newSpaceShip.targetY = 450;
+        newSpaceShip.spaceshipID = idCount++;
+        console.log("id : " + newSpaceShip.spaceshipID)
         
         newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera3.playerName); this.spaceships.push(newSpaceShip);
         newSpaceShip.x = 450;  newSpaceShip.y = UntitledGame.config.MAP_HEIGHT - 570; newSpaceShip.owner = 3;
         newSpaceShip.targetX = 450;  newSpaceShip.targetY = UntitledGame.config.MAP_HEIGHT - 570;
+        newSpaceShip.spaceshipID = idCount++;
+        console.log("id : " + newSpaceShip.spaceshipID)
         
         newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera4.playerName); this.spaceships.push(newSpaceShip);
         newSpaceShip.x = UntitledGame.config.MAP_WIDTH - 570;  
         newSpaceShip.y = UntitledGame.config.MAP_HEIGHT - 570; newSpaceShip.owner = 4;
         newSpaceShip.targetX = UntitledGame.config.MAP_WIDTH - 570;  
         newSpaceShip.targetY = UntitledGame.config.MAP_HEIGHT - 570;
+        newSpaceShip.spaceshipID = idCount++;
+        console.log("id : " + newSpaceShip.spaceshipID)
 
         this.SpaceShipButton1 = new SpaceShipButton(this, 1464, 217, 0); 
         this.SpaceShipButtons.push(this.SpaceShipButton1);
@@ -2440,11 +2588,58 @@ UntitledGame.config = {
 }
 
 var socket = io();
-var data = {};
-var roomname;
-var copyedUserObjects;
+var updateData1 = {
+    camera: {
+        carbon: 1000,
+        x: 0,
+        y: 0,
+        isDead: false,
+        rank: 1,
+    },
+    spaceShips: [{ssID: 0, health: 200, x: 0, y: 0, owner: 1}],
+    galaxys: [{gID: 0, health: 200, owner: 1}],
+    ID: localID
+};
+var updateData2 = {
+    camera: {
+        carbon: 1000,
+        x: 0,
+        y: 0,
+        isDead: false,
+        rank: 2,
+    },
+    spaceShips: [{ssID: 1, health: 200, x: 0, y: 0, owner: 2}],
+    galaxys: [{gID: 1, health: 200, owner: 2}],
+    ID: localID
+};
+var updateData3 = {
+    camera: {
+        carbon: 1000,
+        x: 0,
+        y: 0,
+        isDead: false,
+        rank: 1,
+    },
+    spaceShips: [{ssID: 2, health: 200, x: 0, y: 0, owner: 3}],
+    galaxys: [{gID: 2, health: 200, owner: 3}],
+    ID: localID
+};
+var updateData4 = {
+    camera: {
+        carbon: 1000,
+        x: 0,
+        y: 0,
+        isDead: false,
+        rank: 1,
+    },
+    spaceShips: [{ssID: 3, health: 200, x: 0, y: 0, owner: 4}],
+    galaxys: [{gID: 3, health: 200, owner: 4}],
+    ID: localID
+};
 
 /* socket event */
+var __gID = 0;
+var idCount = 0;
 var p1Name, p2Name, p3Name, p4Name, pID;
 
     socket.on('start game', data => {
@@ -2460,12 +2655,17 @@ var p1Name, p2Name, p3Name, p4Name, pID;
         game.play();
     });
 
-    socket.on('update', (userObjects) => {
-        try {
-            copyedUserObjects = JSON.parse(JSON.stringify(userObjects));
-        } catch (error) {
-            console.log(error)
-        }
+    socket.on('update1', (data) => {
+        updateData1 = data;
+    })
+    socket.on('update2', (data) => {
+        updateData2 = data;
+    })
+    socket.on('update3', (data) => {
+        updateData3 = data;
+    })
+    socket.on('update4', (data) => {
+        updateData4 = data;
     })
     
     socket.on('connect', () => {
@@ -2508,7 +2708,7 @@ window.onload = function () {
 
     canvas.addEventListener("mousemove", function(event)
     {
-        game.mouseX = event.x - game.mainCamera.x;
-        game.mouseY = event.y - game.mainCamera.y;
+        // game.mouseX = event.x - game.mainCamera.x;
+        // game.mouseY = event.y - game.mainCamera.y;
     });
 };

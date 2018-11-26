@@ -110,7 +110,7 @@ $(function() {
   });
 
   socket.on('reconnect', () => {
-    log('재연결되었습니다');
+    console.log('재연결되었습니다');
     if (username) {
       socket.emit('add user', username);
     }
