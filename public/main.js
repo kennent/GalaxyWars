@@ -8,6 +8,7 @@ $(function() {
   // Initialize variables
   var $window = $(window);
   var $usernameInput = $('.usernameInput'); // Input for username
+  var $startBtn = $('.start-btn');
 
   var $donationIcon = $('.donateIcon');
   var $helpIcon = $('.helpIcon');
@@ -17,11 +18,16 @@ $(function() {
   var $helpPage = $('.help.page'); // The help page
   var $gamePage = $('.game.page'); // The game page
 
+  // help
+  var $helpStory = $('#content');
+
   // Prompt for setting a username
   var username;
   var userID;
   var isConnected = false;
   var $currentInput = $usernameInput.focus();
+
+  var helpTime;
 
   $loginPage.show();
   $loadingPage.fadeOut();
@@ -68,7 +74,25 @@ $(function() {
     }
   });
 
+  // Help events
+
+
   // Click events
+  $startBtn.click(() => {
+    username = cleanInput($usernameInput.val().trim());
+    if (username) {
+      $loginPage.fadeOut();
+      $loginPage.off('click');
+      $loadingPage.show();
+
+      console.log(isConnected);
+      // Tell the server your username
+      socket.emit('add user', {name: username, sID: socket.id});
+      console.log(socket.id);
+      isConnected = true;
+      localIsPlayer = true;
+    }
+  });
 
   // Focus input when clicking anywhere on login page
   $loginPage.click(() => {
@@ -79,10 +103,16 @@ $(function() {
     $loginPage.fadeOut();
     $loginPage.off('click');
     $helpPage.show();
+
+    socket.emit('helpStory');
   });
 
   // Socket events
   var socket = io();
+
+  socket.on('helpEnd', () => {
+    console.log('asdfffff');
+  });
 
   socket.on('start game', data => {
     $loadingPage.fadeOut();

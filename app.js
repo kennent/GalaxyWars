@@ -49,6 +49,20 @@ function update() {
 
 io.on('connection', (socket) => {
 
+  // Help 
+  socket.on('helpStory', () => {
+    var helpStartTime = new Date();
+    var helpNowTime;
+    var helpInterval = setInterval(() => {
+      helpNowTime = new Date();
+      console.log(parseInt((helpNowTime - helpStartTime) / 1000));
+      if (parseInt((helpNowTime - helpStartTime) / 1000) >= 15) {
+        socket.emit('helpEnd');
+        clearInterval(helpInterval);
+      }
+    }, 1000);
+  });
+
   // Matching & Main socket event
 
   socket.on('add user', (data) => {

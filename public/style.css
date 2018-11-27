@@ -191,37 +191,6 @@
     }
   }
 
-  .help.page .logo {
-    position: absolute;
-    top: 20%;
-    left: 45%;
-    z-index: 1;
-    margin: auto;
-    animation: logo 9s ease-out 9s;
-    opacity: 0;
-  }
-
-  .help.page .logo svg {
-    width: inherit;
-  }
-
-  @keyframes logo {
-    0% {
-      width: 18em;
-      transform: scale(2.75);
-      opacity: 1;
-    }
-    50% {
-      opacity: 1;
-      width: 18em;
-    }
-    100% {
-      opacity: 0;
-      transform: scale(0.1);
-      width: 18em;
-    }
-  }
-
   .help.page p {
     color: #FFFF82;
   }
@@ -252,7 +221,8 @@
   }
 
   .help.page #content {
-    animation: scroll 100s linear 16s;
+    animation: scroll 40s;
+    animation-delay: 2s;
     position: absolute;
     top: 100%;
   }
