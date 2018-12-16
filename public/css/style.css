@@ -45,26 +45,26 @@
     width: 100%;
   }
 
-  .donateIcon {
+  /* .facebookSignInIcon {
     position: fixed;
     left: 3%;
     bottom: 5%;
-    width: 5.5%;
-    height: 12%;
+    width: 2.5%;
+    height: 4%;
   }
-  .helpIcon {
+  .googleSignInIcon {
     position: fixed;
     right: 3%;
     bottom: 5%;
-    width: 5.5%;
-    height: 12%;
-  }
+    width: 2.5%;
+    height: 4.25%;
+  } */
   
   /* Login Page */
   
   .login.page {
     /*background-color: #;*/
-    background: url('src/login page/background2.png') no-repeat center center;
+    background: url('../src/login page/background2.png') no-repeat center center;
   }
   
   .login.page .form {
@@ -114,6 +114,18 @@
     width: 15%;
     height: 105%;
   }
+
+  .start-btn:hover {
+    filter: brightness(75%);
+  }
+
+  .signInIcon {
+    position: fixed;
+    right: 3%;
+    bottom: 5%;
+    width: 2.4%;
+    height: 4%;
+  }
   
   /* Loading page */
   
@@ -123,7 +135,7 @@
     align-items: center;
     width: 100%;
     height: 100%;
-    background: url('src/login page/background2.png') no-repeat center center;
+    background: url('../src/login page/background2.png') no-repeat center center;
   }
   .loading.page .loading.bar {
     display: flex;
@@ -162,7 +174,7 @@
 
   /* Help Page */
   .help.page {
-    background: url('src/login page/background2.png') no-repeat center center;
+    background: url('../src/login page/background2.png') no-repeat center center;
   }
   .help.page .intro {
     position: absolute;
@@ -239,6 +251,34 @@
       top: -170%;
     }
   }
+
+  /* SignIn Page */
+  .signIn.page {
+    display: flex;
+
+    flex-flow: column;
+  }
+  
+  .signIn.page div {
+    display: flex;
+    flex: 1;
+
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .signIn.page .social.signIn {
+    padding: 0;
+    display: flex;
+    flex: 2;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+  }
+
+  .signIn.page .social.signIn .fb-login-button {
+    padding: 2%;
+  }
   
   /* Font */
   
@@ -294,4 +334,73 @@
     position: absolute;
     right: 0;
     width: 100%;
+  }
+
+  /* main Page */
+  .main.page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background: url('../src/login page/background2.png') no-repeat center center;
+  }
+
+  .main.page .game.list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: row;
+  }
+
+  .main.page .game.list .fast-game {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    flex:1;
+  }
+  .main.page .game.list .custom-game {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    flex:1;
+  }
+  .main.page .game.list .game-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+
+    flex:1;    
+  }
+  .main.page .game.list .game-info div {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    padding-top: 5%;
+    padding-bottom: 5%;
+  }
+
+  .main.page .game.list img {
+    filter: brightness(75%);
+    width: 50%;
+    height: 50%;
+  }
+  .main.page .game.list img:hover {
+    filter: brightness(100%);
+    width: 60%;
+    height: 60%;
+  }
+
+  /* Account Page */
+  .account.page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background: url('../src/login page/background2.png') no-repeat center center;
   }
