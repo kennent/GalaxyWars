@@ -7,7 +7,7 @@ var path = require('path');
 var session = require('express-session');
 var keys = require('./config/keys.json');
 var server = require('http').createServer(app);
-var io = require('./lib/sockets').listen(app);
+var io = require('./lib/sockets').listen(server);
 var port = process.env.PORT || 80;
 
 // server listen

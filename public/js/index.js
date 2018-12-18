@@ -80,7 +80,8 @@ $(function() {
     $mainPage.fadeOut();
     $loadingPage.show();
 
-    socket.emit('matchingJoin', socket.id);
+    isJoin = true;
+    socket.emit('joinFastMatching', socket.id);
   });
   $customGameBtn.click(() => {
   });
@@ -91,22 +92,27 @@ $(function() {
 
   // socket Events
   var socket = io();
-  var isPlay = false;
+  var isPlay = false, isJoin = false;
 
-  socket.on("disconnect", () => {
-    if (!isPlay)
-      socket.emit("leaveMatching", socket.id);
-  });
-
-  socket.on("joinedRoom", (roomname) => {
-    socket.join(roomname);
-  });
-
-  socket.on("play", (roomname) => {
-    isPlay = true;
+  socket.on('fastMatching', idx => {
+    localRoomIdx = idx;
     localRoomname = roomname;
-    socket.join(roomname);
+  });
+
+  // socket.on("disconnect", () => {
+  //   if (!isJoin)
+  //     socket.emit("leave", { id: socket.id, isPlay: isPlay, roomIdx: roomIdx });
+  // });
+
+  socket.on("play", roomname => {
+    isPlay = true;
     $loadingPage.hide();
     $inGamePage.show();
+  });
+
+  socket.on("endFastGame2Client", () => {
+    isPlay = false;
+    $loadingPage.show();
+    $inGamePage.hide();
   });
 });

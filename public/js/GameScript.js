@@ -1243,7 +1243,7 @@ class ExplainText extends GameObject{
         this.explainTime = 0;
         this.explainText = "";
         this.color = "White";
-    }
+    }   
     render(){
         this.x = this.canvas.width * 0.5;
         this.y = this.canvas.height - this.abY * this.canvas.width / 1465;
@@ -1817,7 +1817,7 @@ class UntitledGame {
     }
 
     update(deltaTime) {
-        // this.socketUpdate();
+        this.socketUpdate();
 
         this.uiScale = this.canvas.width / 1465;
 
@@ -1889,268 +1889,28 @@ class UntitledGame {
                 return obj.useful;
             }
         );
-        // this.socketUpdate();
     }
 
-    // socketUpdate() {
-    //     if (localID == 1) {
-    //         var myGalaxy = [];
-    //         var mySpaceShip = [];
-    //         for (var i = 0; i < this.galaxys.length;i++) {
-    //             if (this.galaxys[i].owner == localID) {
-    //                 var tmp = {
-    //                     gID: this.galaxys[i].gID,
-    //                     health: this.galaxys[i].defensiveForce,
-    //                     owner: localID
-    //                 };
-    //                 myGalaxy.push(tmp);
-    //             }
-    //         }
-    //         for (var i = 0; i < this.spaceships.length;i++) {
-    //             if (this.spaceships[i].owner == localID) {
-    //                 var tmp = {
-    //                     ssID: this.spaceships[i].spaceshipID,
-    //                     health: this.spaceships[i].health,
-    //                     x: this.spaceships[i].x,
-    //                     y: this.spaceships[i].y,
-    //                     owner: localID
-    //                 }
-    //                 mySpaceShip.push(tmp);
-    //             }
-    //         }
-    //         socket.emit("update", {
-    //             camera: {
-    //                 carbon: this.camera1.carbon,
-    //                 x: this.camera1.x,
-    //                 y: this.camera1.y,
-    //                 isDead: this.camera1.isDead,
-    //                 rank: this.camera1.rank
-    //             },
-    //             spaceShips: mySpaceShip,
-    //             galaxys: myGalaxy,
-    //             ID: localID
-    //         });
-    //     }
-        
-    //     if (localID == 2) {
-    //         var myGalaxy = [];
-    //         var mySpaceShip = [];
-    //         for (var i = 0; i < this.galaxys.length;i++) {
-    //             if (this.galaxys[i].owner == localID) {
-    //                 var tmp = {
-    //                     gID: this.galaxys[i].gID,
-    //                     health: this.galaxys[i].defensiveForce,
-    //                     owner: localID
-    //                 };
-    //                 myGalaxy.push(tmp);
-    //             }
-    //         }
-    //         for (var i = 0; i < this.spaceships.length;i++) {
-    //             if (this.spaceships[i].owner == localID) {
-    //                 var tmp = {
-    //                     ssID: this.spaceships[i].spaceshipID,
-    //                     health: this.spaceships[i].health,
-    //                     x: this.spaceships[i].x,
-    //                     y: this.spaceships[i].y,
-    //                     owner: localID
-    //                 }
-    //                 mySpaceShip.push(tmp);
-    //             }
-    //         }
-    //         socket.emit("update", {
-    //             camera: {
-    //                 carbon: this.camera2.carbon,
-    //                 x: this.camera2.x,
-    //                 y: this.camera2.y,
-    //                 isDead: this.camera2.isDead,
-    //                 rank: this.camera2.rank
-    //             },
-    //             spaceShips: mySpaceShip,
-    //             galaxys: myGalaxy,
-    //             ID: localID
-    //         });
-    //     }
-        
-    //     if (localID == 3) {
-    //         var myGalaxy = [];
-    //         var mySpaceShip = [];
-    //         for (var i = 0; i < this.galaxys.length;i++) {
-    //             if (this.galaxys[i].owner == localID) {
-    //                 var tmp = {
-    //                     gID: this.galaxys[i].gID,
-    //                     health: this.galaxys[i].defensiveForce,
-    //                     owner: localID
-    //                 };
-    //                 myGalaxy.push(tmp);
-    //             }
-    //         }
-    //         for (var i = 0; i < this.spaceships.length;i++) {
-    //             if (this.spaceships[i].owner == localID) {
-    //                 var tmp = {
-    //                     ssID: this.spaceships[i].spaceshipID,
-    //                     health: this.spaceships[i].health,
-    //                     x: this.spaceships[i].x,
-    //                     y: this.spaceships[i].y,
-    //                     owner: localID
-    //                 }
-    //                 mySpaceShip.push(tmp);
-    //             }
-    //         }
-    //         socket.emit("update", {
-    //             camera: {
-    //                 carbon: this.camera3.carbon,
-    //                 x: this.camera3.x,
-    //                 y: this.camera3.y,
-    //                 isDead: this.camera3.isDead,
-    //                 rank: this.camera3.rank
-    //             },
-    //             spaceShips: mySpaceShip,
-    //             galaxys: myGalaxy,
-    //             ID: localID
-    //         });
-    //     }
-        
-    //     if (localID == 4) {
-    //         var myGalaxy = [];
-    //         var mySpaceShip = [];
-    //         for (var i = 0; i < this.galaxys.length;i++) {
-    //             if (this.galaxys[i].owner == localID) {
-    //                 var tmp = {
-    //                     gID: this.galaxys[i].gID,
-    //                     health: this.galaxys[i].defensiveForce,
-    //                     owner: localID
-    //                 };
-    //                 myGalaxy.push(tmp);
-    //             }
-    //         }
-    //         for (var i = 0; i < this.spaceships.length;i++) {
-    //             if (this.spaceships[i].owner == localID) {
-    //                 var tmp = {
-    //                     ssID: this.spaceships[i].spaceshipID,
-    //                     health: this.spaceships[i].health,
-    //                     x: this.spaceships[i].x,
-    //                     y: this.spaceships[i].y,
-    //                     owner: localID
-    //                 }
-    //                 mySpaceShip.push(tmp);
-    //             }
-    //         }
-    //         socket.emit("update", {
-    //             camera: {
-    //                 carbon: this.camera4.carbon,
-    //                 x: this.camera4.x,
-    //                 y: this.camera4.y,
-    //                 isDead: this.camera4.isDead,
-    //                 rank: this.camera4.rank
-    //             },
-    //             spaceShips: mySpaceShip,
-    //             galaxys: myGalaxy,
-    //             ID: localID
-    //         });
-    //     }
-    //     if (localID != 1 && updateData1 != undefined) {
-    //         this.camera1.carbon = updateData1.camera.carbon;
-    //         this.camera1.x = updateData1.camera.x;
-    //         this.camera1.y = updateData1.camera.y;
-    //         this.camera1.isDead = updateData1.camera.isDead;
-    //         this.camera1.rank = updateData1.camera.rank;
+    socketUpdate() {
+        data = this.stayKeys;
+        socket.emit("socketUpdate2Server", data);
+    }
 
-    //         for (var i = 0; i < updateData1.spaceShips.length;i++) {
-    //             for (var j = 0; j < this.spaceships.length;j++) {
-    //                 console.log(j + " : " + this.spaceships[j])
-    //                 if (this.spaceships[j].spaceshipID == updateData1.spaceShips[i].ssID) {
-    //                     this.spaceships[j].owner = updateData1.spaceShips[i].owner;
-    //                     this.spaceships[j].health = updateData1.spaceShips[i].health;
-    //                     this.spaceships[j].x = updateData1.spaceShips[i].x;
-    //                     this.spaceships[j].y = updateData1.spaceShips[i].y;
-    //                 }
-    //             }
-    //         }
-    //         for (var i = 0; i < updateData1.galaxys.length;i++) {
-    //             for (var j = 0; j < this.galaxys.length;j++) {
-    //                 if (this.galaxys[j].gID == updateData1.galaxys[i].gID) {
-    //                     this.galaxys[j].owner = updateData1.galaxys[i].owner;
-    //                     this.galaxys[j].defensiveForce = updateData1.galaxys[i].health;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     if (localID != 2 && updateData2 != undefined) {
-    //         this.camera2.carbon = updateData2.camera.carbon;
-    //         this.camera2.x = updateData2.camera.x;
-    //         this.camera2.y = updateData2.camera.y;
-    //         this.camera2.isDead = updateData2.camera.isDead;
-    //         this.camera2.rank = updateData2.camera.rank;
-
-    //         for (var i = 0; i < updateData2.spaceShips.length;i++) {
-    //             for (var j = 0; j < this.spaceships.length;j++) {
-    //                 if (this.spaceships[j].spaceshipID == updateData2.spaceShips[i].ssID) {
-    //                     this.spaceships[j].owner = updateData2.spaceShips[i].owner;
-    //                     this.spaceships[j].health = updateData2.spaceShips[i].health;
-    //                     this.spaceships[j].x = updateData2.spaceShips[i].x;
-    //                     this.spaceships[j].y = updateData2.spaceShips[i].y;
-    //                 }
-    //             }
-    //         }
-    //         for (var i = 0; i < updateData2.galaxys.length;i++) {
-    //             for (var j = 0; j < this.galaxys.length;j++) {
-    //                 if (this.galaxys[j].gID == updateData2.galaxys[i].gID) {
-    //                     this.galaxys[j].owner = updateData2.galaxys[i].owner;
-    //                     this.galaxys[j].defensiveForce = updateData2.galaxys[i].health;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     if (localID != 3 && updateData3 != undefined) {
-    //         this.camera3.carbon = updateData3.camera.carbon;
-    //         this.camera3.x = updateData3.camera.x;
-    //         this.camera3.y = updateData3.camera.y;
-    //         this.camera3.isDead = updateData3.camera.isDead;
-    //         this.camera3.rank = updateData3.camera.rank;
-
-    //         for (var i = 0; i < updateData3.spaceShips.length;i++) {
-    //             for (var j = 0; j < this.spaceships.length;j++) {
-    //                 if (this.spaceships[j].spaceshipID == updateData3.spaceShips[i].ssID) {
-    //                     this.spaceships[j].owner = updateData3.spaceShips[i].owner;
-    //                     this.spaceships[j].health = updateData3.spaceShips[i].health;
-    //                     this.spaceships[j].x = updateData3.spaceShips[i].x;
-    //                     this.spaceships[j].y = updateData3.spaceShips[i].y;
-    //                 }
-    //             }
-    //         }
-    //         for (var i = 0; i < updateData3.galaxys.length;i++) {
-    //             for (var j = 0; j < this.galaxys.length;j++) {
-    //                 if (this.galaxys[j].gID == updateData3.galaxys[i].gID) {
-    //                     this.galaxys[j].owner = updateData3.galaxys[i].owner;
-    //                     this.galaxys[j].defensiveForce = updateData3.galaxys[i].health;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     if (localID != 4 && updateData4 != undefined) {
-    //         this.camera4.carbon = updateData4.camera.carbon;
-    //         this.camera4.x = updateData4.camera.x;
-    //         this.camera4.y = updateData4.camera.y;
-    //         this.camera4.isDead = updateData4.camera.isDead;
-    //         this.camera4.rank = updateData4.camera.rank;
-
-    //         for (var i = 0; i < updateData4.spaceShips.length;i++) {
-    //             for (var j = 0; j < this.spaceships.length;j++) {
-    //                 if (this.spaceships[j].spaceshipID == updateData4.spaceShips[i].ssID) {
-    //                     this.spaceships[j].owner = updateData4.spaceShips[i].owner;
-    //                     this.spaceships[j].health = updateData4.spaceShips[i].health;
-    //                     this.spaceships[j].x = updateData4.spaceShips[i].x;
-    //                     this.spaceships[j].y = updateData4.spaceShips[i].y;
-    //                 }
-    //             }
-    //         }
-    //         for (var i = 0; i < updateData4.galaxys.length;i++) {
-    //             for (var j = 0; j < this.galaxys.length;j++) {
-    //                 if (this.galaxys[j].gID == updateData4.galaxys[i].gID) {
-    //                     this.galaxys[j].owner = updateData4.galaxys[i].owner;
-    //                     this.galaxys[j].defensiveForce = updateData4.galaxys[i].health;
-    //                 }
-    //             }
+    // socketUpdate(data) {
+    //     // example.
+    //     /* data
+    //      *  ㄴtype
+    //      *  ㄴplayer
+    //      *  ㄴroomname
+    //      *  ㄴidx
+    //      *  ㄴspaceship...
+    //      */
+    //     if (data.type === "playerCarbonUpdate") {
+    //         switch(data.player) {
+    //             case 0: this.camera1.carbon = data.carbon; break;
+    //             case 1: break;
+    //             case 2: break;
+    //             case 3: break;
     //         }
     //     }
     // }
@@ -2554,7 +2314,7 @@ UntitledGame.spriteDefinition = {//x, y, width, height
 
 //메인으로 돌아가기
 function BackToMain(){
-    window.location.href = "http://localhost";
+    socket.emit("endFastGame2Server", localRoomIdx);
 }
 
 //이름 생성기(짜피 이름이니까 서버에서 안맞춰줘도 되고 맞춰줘도 되고)
@@ -2585,98 +2345,17 @@ UntitledGame.config = {
     Icon_SCALE : 0.05,
     Panel_Height_RATE : 0.209,
     SCALE : 0.4
-}
+}   
 
-// var socket = io();
-// var updateData1 = {
-//     camera: {
-//         carbon: 1000,
-//         x: 0,
-//         y: 0,
-//         isDead: false,
-//         rank: 1,
-//     },
-//     spaceShips: [{ssID: 0, health: 200, x: 0, y: 0, owner: 1}],
-//     galaxys: [{gID: 0, health: 200, owner: 1}],
-//     ID: localID
-// };
-// var updateData2 = {
-//     camera: {
-//         carbon: 1000,
-//         x: 0,
-//         y: 0,
-//         isDead: false,
-//         rank: 2,
-//     },
-//     spaceShips: [{ssID: 1, health: 200, x: 0, y: 0, owner: 2}],
-//     galaxys: [{gID: 1, health: 200, owner: 2}],
-//     ID: localID
-// };
-// var updateData3 = {
-//     camera: {
-//         carbon: 1000,
-//         x: 0,
-//         y: 0,
-//         isDead: false,
-//         rank: 1,
-//     },
-//     spaceShips: [{ssID: 2, health: 200, x: 0, y: 0, owner: 3}],
-//     galaxys: [{gID: 2, health: 200, owner: 3}],
-//     ID: localID
-// };
-// var updateData4 = {
-//     camera: {
-//         carbon: 1000,
-//         x: 0,
-//         y: 0,
-//         isDead: false,
-//         rank: 1,
-//     },
-//     spaceShips: [{ssID: 3, health: 200, x: 0, y: 0, owner: 4}],
-//     galaxys: [{gID: 3, health: 200, owner: 4}],
-//     ID: localID
-// };
+// socket events
+var socket = io();
 
-/* socket event */
-// var __gID = 0;
-// var idCount = 0;
-// var p1Name, p2Name, p3Name, p4Name, pID;
+socket.on("socketUpdate2Client", data => {
+    game.socketUpdate(data);
+});
 
-//     socket.on('start game', data => {
-//         p1Name = data[0].name;
-//         p2Name = data[1].name;
-//         p3Name = data[2].name;
-//         p4Name = data[3].name;
-
-//         roomname = "TestRoom";
-
-//         pID = localID;
-
-//         game.play();
-//     });
-
-//     socket.on('update1', (data) => {
-//         updateData1 = data;
-//     })
-//     socket.on('update2', (data) => {
-//         updateData2 = data;
-//     })
-//     socket.on('update3', (data) => {
-//         updateData3 = data;
-//     })
-//     socket.on('update4', (data) => {
-//         updateData4 = data;
-//     })
-    
-//     socket.on('connect', () => {
-//     });
-    
-//     socket.on('disconnect', () => {
-//         socket.emit('gameDisconnect');
-//     });
-    
-    var canvas = document.getElementById("game");
-    let game = new UntitledGame(canvas);
+var canvas = document.getElementById("game");
+let game = new UntitledGame(canvas);
 
 window.onresize = function(){
     canvas.style.widows = window.innerWidth;
