@@ -503,9 +503,9 @@ class SpaceShip extends GameObject {
 
         this.attackTime -= deltaTime;
 
-        if (this.game.isKeyStay('KeyF'))
+        if (!this.game.chatScreen.chatMode && this.game.isKeyStay('KeyF'))
             this.Damage(5);
-        if (this.game.isKeyStay('KeyG'))
+        if (!this.game.chatScreen.chatMode && this.game.isKeyStay('KeyG'))
             this.game.mainCamera.carbon -= 50
 
         this.attackState();
@@ -1301,7 +1301,7 @@ class TimeText extends GameObject{
         time = time + " : " + ((this.sec < 10) ? "0" + this.sec : this.sec); 
         this.context.fillText(time, 0, 0);
 
-        if(this.nowTime >= this.maxTime || this.game.isKeyStay('KeyP')){
+        if(this.nowTime >= this.maxTime || !this.game.chatScreen.chatMode && this.game.isKeyStay('KeyP')){
             this.game.endGame();
         }
     }
@@ -1484,19 +1484,19 @@ class Camera extends GameObject {
     }
 
     update(deltaTime) {
-        if(this.game.isKeyStay('Space'))
+        if(!this.game.chatScreen.chatMode && this.game.isKeyStay('Space'))
             this.moveSpeed = 15
         else
             this.moveSpeed = 8
 
-        if (this.game.isKeyStay('KeyW')) 
+        if (!this.game.chatScreen.chatMode && this.game.isKeyStay('KeyW')) 
             this.y += this.moveSpeed;
-        if (this.game.isKeyStay('KeyS')) 
+        if (!this.game.chatScreen.chatMode && this.game.isKeyStay('KeyS')) 
             this.y -= this.moveSpeed;
             
-        if (this.game.isKeyStay('KeyA')) 
+        if (!this.game.chatScreen.chatMode && this.game.isKeyStay('KeyA')) 
             this.x += this.moveSpeed;
-        if (this.game.isKeyStay('KeyD')) 
+        if (!this.game.chatScreen.chatMode && this.game.isKeyStay('KeyD')) 
             this.x -= this.moveSpeed;
             
         if(this.carbon < -1000){
@@ -1536,11 +1536,175 @@ class Camera extends GameObject {
     }
  }
 
+ class ChatScreen extends GameObject{
+    constructor(game){
+        super();
+        this.game = game;
+        this.context = game.context;
+
+        this.x = 10; this.y = 320;
+        this.width = 300; this.height = 35;
+
+        this.lineOffset = 33;
+
+        this.maxLine = 5; this.nowLine = 0;
+
+        this.lastChar = ""
+        this.inputTerm = 0.1; this.enterTerm = 0.2; this.bsTerm = 0.2;
+        this.spaceTerm = 0.1;
+
+        this.chatMode = false;
+        
+        this.Chattings = [];
+        this.textCount = 0;
+        this.nowText = "";
+    }
+    render(){
+        if(this.chatMode){
+            this.context.fillStyle = 'White';
+            this.context.strokeStyle = 'White';
+            this.context.globalAlpha = '0.3';
+            this.context.fillRect(this.x * this.game.uiScale, this.game.canvas.height - (this.y + 5) * this.game.uiScale,
+                this.width * this.game.uiScale,this.height * this.game.uiScale);
+            this.context.globalAlpha = '1';
+        }
+
+        this.context.font = (25 * this.game.uiScale) + "px 나눔바른펜";
+        this.context.textBaseline = 'center';
+        this.context.textAlign = 'left';
+        this.context.fillStyle = "Black";
+        this.context.fillText(this.nowText,
+            (this.x + 5) * this.game.uiScale, this.game.canvas.height - this.y * this.game.uiScale);
+
+
+        this.context.font = (20 * this.game.uiScale) + "px 나눔바른펜";
+        this.context.textBaseline = 'center';
+        this.context.textAlign = 'left';
+
+        if(this.Chattings.length < this.maxLine)
+            this.startIndex = this.Chattings.length;
+        else
+            this.startIndex = this.maxLine;
+
+        var c = 0;
+        
+        for(var i = this.Chattings.length - 1;i > this.Chattings.length - this.startIndex - 1;i--){
+            c++;
+            if(this.Chattings[i][0] == '0'){
+                this.context.fillStyle = "#2ECCFA";
+                var str = this.game.cameras[0].playerName + " : " + this.Chattings[i].replace("0", "");
+                this.context.fillText(str, 
+                    (this.x + 5) * this.game.uiScale, this.game.canvas.height - (this.y + this.lineOffset * c) * this.game.uiScale);
+            }
+            else if(this.Chattings[i][0] == '1'){
+                this.context.fillStyle = "#00FF40";
+                var str = this.game.cameras[1].playerName + " : " + this.Chattings[i].replace("1", "");
+                this.context.fillText(str, 
+                    (this.x + 5) * this.game.uiScale, this.game.canvas.height - (this.y + this.lineOffset * c) * this.game.uiScale);
+            }
+            else if(this.Chattings[i][0] == '2'){
+                this.context.fillStyle = "#FE2E2E";
+                var str = this.game.cameras[2].playerName + " : " + this.Chattings[i].replace("2", "");
+                this.context.fillText(str, 
+                    (this.x + 5) * this.game.uiScale, this.game.canvas.height - (this.y + this.lineOffset * c) * this.game.uiScale);
+
+            }
+            else if(this.Chattings[i][0] == '3'){
+                this.context.fillStyle = "Yellow";
+                var str = this.game.cameras[3].playerName + " : " + this.Chattings[i].replace("3", "");
+                this.context.fillText(str, 
+                    (this.x + 5) * this.game.uiScale, this.game.canvas.height - (this.y + this.lineOffset * c) * this.game.uiScale);
+            }
+            else{
+                this.context.fillStyle = "#FFFFFF";
+                var str = "ALL : " + this.Chattings[i].replace("4", "");
+                this.context.fillText(str, 
+                    (this.x + 5) * this.game.uiScale, this.game.canvas.height - (this.y + this.lineOffset * c) * this.game.uiScale);
+            }
+        }
+    }
+
+    update(deltaTime){
+        if(this.inputTerm > 0)
+            this.inputTerm -= deltaTime;
+        if(this.enterTerm > 0)
+            this.enterTerm -= deltaTime;
+        if(this.bsTerm > 0)
+            this.bsTerm -= deltaTime;
+        if(this.spaceTerm > 0)
+            this.spaceTerm -= deltaTime;
+            
+            
+        if(this.chatMode){
+            if(this.game.isKeyStay('Enter')&& this.enterTerm <= 0){
+                if(this.nowText != ""){
+                    this.Chattings[this.textCount++] = (this.game.playerID - 1) + this.nowText;
+                    this.nowText = "";
+                }
+                this.chatMode = false;
+                this.enterTerm = 0.1;
+            }
+            if(this.game.isKeyStay('Backspace')&& this.bsTerm <= 0){
+                if(this.nowText.length > 0){
+                    this.nowText = this.nowText.substring(0, this.nowText.length - 1); 
+                }
+                this.bsTerm = 0.1;
+            }
+            if(this.game.isKeyStay('Space')&& this.spaceTerm <= 0){
+                if(this.nowText.length > 0){
+                    this.nowText = this.nowText + " ";
+                }
+                this.spaceTerm = 0.1;
+            }
+            for(var str in this.game.stayKeys){
+                if(this.game.stayKeys[str]){
+                    if(str.match(/Key/)){
+                        str = str.replace("Key", "")
+                    }
+                    else if(str.match(/Digit/)){
+                        str = str.replace("Digit", "")
+                    }
+                    else if(str.match(/Numpad/)){
+                        str = str.replace("Numpad", "")
+                    }else{
+                        continue;
+                    }
+
+                    if(this.game.isKeyStay('ShiftLeft') || this.game.isKeyStay('ShiftRight'))
+                        str = str.toUpperCase();
+                    else
+                        str = str.toLowerCase();
+
+                    if(this.lastChar.toLowerCase() == str.toLowerCase()){
+                        if(this.inputTerm <= 0){
+                            this.inputTerm = 0.02;
+                            this.nowText = this.nowText + str;
+                            this.lastChar = str;
+                        }
+                    }else{
+                        this.nowText = this.nowText + str;
+                        this.inputTerm = 0.5;
+                        this.lastChar = str;
+                    }
+                    break;
+                }
+            }
+        }
+        else{
+            if(this.game.isKeyStay('Enter') && this.enterTerm <= 0){
+                this.chatMode = true;
+                this.enterTerm = 0.2;
+            }
+        }
+    }
+}
+
 class UntitledGame {
     /* 초기화 */
     constructor(canvasElement) {
         this.canvas = canvasElement;
         this.context = canvasElement.getContext('2d');
+        this.chatScreen = new ChatScreen(this);
 
         this.uiScale = 0;
         {
@@ -1814,6 +1978,8 @@ class UntitledGame {
             
         for(let sb of this.SpaceShipButtons)
             sb.render();
+
+        this.chatScreen.render();
     }
 
     update(deltaTime) {
@@ -1889,10 +2055,15 @@ class UntitledGame {
                 return obj.useful;
             }
         );
+
+        this.chatScreen.update(deltaTime);
     }
 
     socketUpdate() {
-        data = this.stayKeys;
+        data = {
+            keys: this.stayKeys,
+            playerID: localPlayerID
+        };
         socket.emit("socketUpdate2Server", data);
     }
 
