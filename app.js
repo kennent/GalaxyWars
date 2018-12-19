@@ -20,6 +20,7 @@ app.engine('html', require('ejs').renderFile);
 
 // Routing
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public/Resources')));
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended: false}));
 app.use(session({

@@ -44,13 +44,14 @@ class Sprite extends GameObject {
 
         else if(this.imageType === "EllipseGalaxy"){
             let { x, y, width, height } = this.imageRect;
-    
-            this.game.context.drawImage(this.game.EllipseGalaxy_Image[this.obj.owner],
-                x, y, width, height, 
-                (this.camera.x + this.x),
-                (this.camera.y + this.y),
-                width * UntitledGame.config.SCALE, height * UntitledGame.config.SCALE
-            );
+            if (this.mainCamera != null) {
+                this.game.context.drawImage(this.game.EllipseGalaxy_Image[this.obj.owner],
+                    x, y, width, height, 
+                    (this.camera.x + this.x),
+                    (this.camera.y + this.y),
+                    width * UntitledGame.config.SCALE, height * UntitledGame.config.SCALE
+                );
+            }
         }
         else if(this.imageType === "LensGalaxy"){
             let { x, y, width, height } = this.imageRect;
@@ -243,12 +244,12 @@ class Line extends Sprite {
  * 
  * */
 class Galaxy extends GameObject {
-    constructor(game, galaxyType, galaxyName, gID = __gID) {
+    constructor(game, galaxyType, galaxyName, gID) {
         super();
         this.game = game;
 
-        this.gID = gID;
-        __gID++;
+        this.gID = 0;
+        gID++;
 
         this.x = 0; this.y = 0; //해당 오브젝트가 그려지는 X,Y좌표
         this.centerX = 0; this.centerY = 0; //해당 오브젝트의 중심
@@ -348,9 +349,11 @@ class Galaxy extends GameObject {
         this.game.context.fillStyle = 'White';
         this.game.context.textBaseline = 'top';
         this.game.context.textAlign = 'center';
-        this.game.context.fillText(this.galaxyName + "(" + this.galaxyType + ")",
-         this.game.mainCamera.x + this.x + (this.animation.width * UntitledGame.config.SCALE * 0.5), 
-         this.game.mainCamera.y + this.y - 50);
+        if (this.mainCamera != null) {
+            this.game.context.fillText(this.galaxyName + "(" + this.galaxyType + ")",
+            this.game.mainCamera.x + this.x + (this.animation.width * UntitledGame.config.SCALE * 0.5), 
+            this.game.mainCamera.y + this.y - 50);
+        }
 
          if(this.defensiveForce < this.maxDefensiveForce || this.game.nowClicked_Obj == this || 
             this.owner == this.game.playerID){
@@ -1815,7 +1818,7 @@ class UntitledGame {
     }
     
     realPlay() {
-        this.playerID = pID; //플레이어 아이디
+        this.playerID = _playerID; //플레이어 아이디
 
         this.camera1 = new Camera(this, 1); this.cameras.push(this.camera1);
         this.camera2 = new Camera(this, 2); this.cameras.push(this.camera2);
@@ -2060,9 +2063,11 @@ class UntitledGame {
     }
 
     socketUpdate() {
-        data = {
+        var data = {
             keys: this.stayKeys,
-            playerID: localPlayerID
+            playerID: localPlayerID,
+            roomname: localRoomname,
+            idx: localRoomIdx
         };
         socket.emit("socketUpdate2Server", data);
     }
@@ -2078,7 +2083,7 @@ class UntitledGame {
     //      */
     //     if (data.type === "playerCarbonUpdate") {
     //         switch(data.player) {
-    //             case 0: this.camera1.carbon = data.carbon; break;
+    //             case 0: this.camera1.carbon = data.player1.carbon; break;
     //             case 1: break;
     //             case 2: break;
     //             case 3: break;
@@ -2137,8 +2142,10 @@ class UntitledGame {
             return;
         }
         var flag = false;
-        var mousePosX = event.x - this.mainCamera.x;
-        var mousePosY = event.y - this.mainCamera.y;
+        if (this.mainCamera != null) {
+            var mousePosX = event.x - this.mainCamera.x;
+            var mousePosY = event.y - this.mainCamera.y;
+        }
 
         for(let b of this.Buttons){
             if (
@@ -2511,22 +2518,42 @@ UntitledGame.config = {
     PLANET_RESOURCE_TERM : 1,
     MAP_WIDTH : 3840,
     MAP_HEIGHT : 2160,
-
+    
     MAP_SCALE : 0.1,
     Icon_SCALE : 0.05,
     Panel_Height_RATE : 0.209,
     SCALE : 0.4
 }   
 
-// socket events
-var socket = io();
-
-socket.on("socketUpdate2Client", data => {
-    game.socketUpdate(data);
-});
-
 var canvas = document.getElementById("game");
 let game = new UntitledGame(canvas);
+
+var socket = io();
+
+// player var
+var p1Name, p2Name, p3Name, p4Name, _playerID;
+
+// socket events
+socket.on("play", data => {
+    if (localRoomname === data.roomname) {
+        console.log("Play")
+        p1Name = data.p1Name;
+        p2Name = data.p2Name;
+        p3Name = data.p3Name;
+        p4Name = data.p4Name;
+        _playerID = localPlayerID;
+        game.play();
+    }
+});
+
+// socket.on("socketUpdate2Client", data => {
+//     game.socketUpdate(data);
+// });
+
+// var socket = localSocket;
+// console.log(socket);
+
+var idCount = 0;
 
 window.onresize = function(){
     canvas.style.widows = window.innerWidth;

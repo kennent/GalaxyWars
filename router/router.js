@@ -12,6 +12,10 @@ router.get('/signIn', (req, res) => {
     res.render('signIn');
 });
 
+router.get('/game', (req, res) => {
+    res.render('game');
+});
+
 router.get('/auth/facebook', passport.authenticate('facebook', {
     authType: 'rerequest',
     scope: ['public_profile', 'email']

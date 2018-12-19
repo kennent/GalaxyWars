@@ -1,6 +1,9 @@
 <% include header.ejs %>
 
   <ul class="pages">
+    <li class="InGame page">
+      <canvas  id="game"></canvas>
+    </li>
     <li class="loading page">
       <div class="loading bar">
         <img class="loadingGalaxy" class="l-galaxy" src="src/loading page/loadingGalaxy.gif" />
@@ -36,14 +39,12 @@
   </ul>
 
 <script>
-  var localPlayerID = null;
-  var localRoomIdx = null;
-  var localRoomname = null;
-  var localSocketID = null;
+  
 </script>
 
 <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
+<script src="js/variable.js"></script>
 <script src="js/GameScript.js"></script>
 <script src="js/index.js"></script>
 </body>

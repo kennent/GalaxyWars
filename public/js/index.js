@@ -18,7 +18,7 @@ $(function() {
   var $loginPage = $('.login.page'); // The login -> main -> fast/custom/account/setting
   var $mainPage = $('.main.page');
   var $loadingPage = $('.loading.page');
-  var $inGamePage = $('.inGame.page');
+  var $inGamePage = $('.InGame.page');
 
   // Prompt for setting a username
   var username;
@@ -81,7 +81,7 @@ $(function() {
     $loadingPage.show();
 
     isJoin = true;
-    socket.emit('joinFastMatching', socket.id);
+    socket.emit('joinFastMatching', {player: socket.id, name: username});
   });
   $customGameBtn.click(() => {
   });
@@ -90,13 +90,19 @@ $(function() {
   $gameSettingBtn.click(() => {
   });
 
+  var upt = (id, idx, roomname) => {
+    localPlayerID = id;
+    localRoomIdx = idx;
+    localRoomname = roomname;
+  };
+
   // socket Events
   var socket = io();
   var isPlay = false, isJoin = false;
+  var userRoomname;
 
-  socket.on('fastMatching', idx => {
-    localRoomIdx = idx;
-    localRoomname = roomname;
+  socket.on('fastMatching', data => {
+    upt(data.playerID, data.idx, data.roomname);
   });
 
   // socket.on("disconnect", () => {
@@ -104,10 +110,11 @@ $(function() {
   //     socket.emit("leave", { id: socket.id, isPlay: isPlay, roomIdx: roomIdx });
   // });
 
-  socket.on("play", roomname => {
+  socket.on("play", data => {
     isPlay = true;
     $loadingPage.hide();
     $inGamePage.show();
+    console.log(localPlayerID);
   });
 
   socket.on("endFastGame2Client", () => {
