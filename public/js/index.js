@@ -90,7 +90,7 @@ $(function() {
   $gameSettingBtn.click(() => {
   });
 
-  var upt = (id, idx, roomname) => {
+  var localVarUpdate = (id, idx, roomname) => {
     localPlayerID = id;
     localRoomIdx = idx;
     localRoomname = roomname;
@@ -98,11 +98,9 @@ $(function() {
 
   // socket Events
   var socket = io();
-  var isPlay = false, isJoin = false;
-  var userRoomname;
 
   socket.on('fastMatching', data => {
-    upt(data.playerID, data.idx, data.roomname);
+    localVarUpdate(data.playerID, data.idx, data.roomname);
   });
 
   // socket.on("disconnect", () => {
@@ -115,11 +113,5 @@ $(function() {
     $loadingPage.hide();
     $inGamePage.show();
     console.log(localPlayerID);
-  });
-
-  socket.on("endFastGame2Client", () => {
-    isPlay = false;
-    $loadingPage.show();
-    $inGamePage.hide();
   });
 });
