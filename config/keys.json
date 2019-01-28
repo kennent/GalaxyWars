@@ -1,0 +1,13 @@
+{
+    "session": {
+        "secret": "^GRa*2War$$!gn$"
+    },
+    "google": {
+        "clientID": "479661583249-br8trofnbhiek4osbsc19ld38f93kan6.apps.googleusercontent.com",
+        "clientSecret": "ueUbEgf2yJkdgz2sjPh9p60Q"
+    },
+    "facebook": {
+        "clientID": "1160068470816298",
+        "clientSeceret": "82146e9c1da6b9568d890017a43073f8"
+    }
+}
