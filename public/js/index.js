@@ -77,6 +77,7 @@ $(function() {
   $startBtn.click(setUsername);
 
   $fastGameBtn.click(() => {
+    // window.location.href = "/game";
     $mainPage.fadeOut();
     $loadingPage.show();
 

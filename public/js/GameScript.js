@@ -238,18 +238,17 @@ class Line extends Sprite {
     }
 }
 
-var gIdx = 0;
 class Galaxy extends GameObject {
     constructor(game, galaxyType, galaxyName) {
         super();
         this.game = game;
-        this.idx = gIdx++;
-        this.x = 0; this.y = 0;
-        this.centerX = 0; this.centerY = 0;
+
+        this.x = 0; this.y = 0; //연동
+        this.centerX = 0; this.centerY = 0; //연동
 
         this.animation;
 
-        this.generateTime = 0; //연동 1초마다 자원을 생산하는 걸 구연할때 시간을 담는 변수
+        this.generateTime = 0; //연동
         
         this.owner = 0;
         
@@ -288,7 +287,7 @@ class Galaxy extends GameObject {
         this.generativeAdd = this.generativeForce / 10;
         this.defensiveAdd = this.defensiveForce / 10;
 
-        this.galaxyName = galaxyName;
+        this.galaxyName = galaxyName; //연동
         
         this.terraforming = 0;//연동
         this.beamBarrier = 0;//연동
@@ -319,14 +318,6 @@ class Galaxy extends GameObject {
     //데미지(데미지량, 누가 때렸는지)
     Damage(dmg, owner){
         this.defensiveForce -= dmg;
-        var data = {
-            type: "gDamage",
-            id: localPlayerID,
-            idx: localRoomIdx,
-            gIdx: this.idx,
-            dmg: dmg
-        }
-        socket.emit("update", data);
         if(this.defensiveForce <= 0)
             this.Death(owner);
     }
@@ -335,15 +326,6 @@ class Galaxy extends GameObject {
     Death(owner){
         this.owner = owner;
         this.defensiveForce = this.maxDefensiveForce;
-
-        var data = {
-            type: "gDeath",
-            id: localPlayerID,
-            idx: localRoomIdx,
-            gIdx: this.idx,
-            owner: owner
-        };
-        socket.emit("update", data);
     }
 
     //체력 표시
@@ -391,14 +373,6 @@ class Galaxy extends GameObject {
             this.game.mainCamera.carbon -= 2000;
             this.terraforming++;
             this.generativeForce += this.generativeAdd;
-
-            var data = {
-                type: "gTerraforming",
-                id: localPlayerID,
-                idx: localRoomIdx,
-                gIdx: this.idx
-            };
-            socket.emit("update", data);
             }
             else
                 this.game.ExplainUI.explainSet("Carbon이 부족합니다", 3, "Red");
@@ -415,14 +389,6 @@ class Galaxy extends GameObject {
             this.beamBarrier++;
             this.defensiveForce += this.defensiveAdd;
             this.maxDefensiveForce += this.defensiveAdd;
-
-            var data = {
-                type: "gBarrier",
-                id: localPlayerID,
-                idx: localRoomIdx,
-                gIdx: this.idx
-            };
-            socket.emit("update", data);
             }
             else
                 this.game.ExplainUI.explainSet("Carbon이 부족합니다", 3, "Red");
@@ -473,7 +439,7 @@ class SpaceShip extends GameObject {
         this.spaceshipName = spaceshipName;
         this.spaceshipType = spaceshipType;
 
-        this.attackTarget =null; // 연동
+        this.attackTarget =null;
         this.isAttacking = false;//연동
         this.canUse = true;//연동
         this.useTime = 0;//연동
@@ -531,7 +497,7 @@ class SpaceShip extends GameObject {
                 p.useful = true;
                 p.x = this.x; p.y = this.y;
                 p.lifeTime = 0.5;
-                p.animation = new Line(this.game, UntitledGame.spriteDefinition.BANG,"Bang",6,12, this);
+                p.animation = new Animation(this.game, UntitledGame.spriteDefinition.BANG,"Bang",6,12, this);
                 break;
             }
         }
@@ -556,8 +522,11 @@ class SpaceShip extends GameObject {
         if(this.owner == this.game.playerID){
             if(this.game.mainCamera.nowCount > 0)
             this.game.SpaceShipButtons[this.game.mainCamera.nowCount - 1].index = 1;
-            this.game.SpaceShipButtons[this.game.mainCamera.nowCount].index = 0;
-            this.game.SpaceShipButtons[this.game.mainCamera.nowCount].connectedObj = null;
+
+            if(this.game.SpaceShipButtons[this.game.mainCamera.nowCount] != null){
+                this.game.SpaceShipButtons[this.game.mainCamera.nowCount].index = 0;
+                this.game.SpaceShipButtons[this.game.mainCamera.nowCount].connectedObj = null;
+            }
             this.game.mainCamera.nowCount--;
         }
     }
@@ -583,7 +552,6 @@ class SpaceShip extends GameObject {
             else if(this.attackTarget.useful)
             {
                 this.setDestination(this.attackTarget.x, this.attackTarget.y)
-                this.animation = this.moveAnim;
 
                 var distX = this.attackTarget.x - this.x;
                 var distY = this.attackTarget.y - this.y;
@@ -609,7 +577,6 @@ class SpaceShip extends GameObject {
                 if(dist > this.range){
                     this.isAttacking = false;
                     this.setDestination(this.attackTarget.x, this. attackTarget.y)
-                    this.animation = this.moveAnim;
                 }
                 else{
                     if(this.attackTime <= 0){
@@ -687,7 +654,6 @@ class SpaceShip extends GameObject {
                 this.targetVectorY = 0;
                 this.x = this.targetX;
                 this.y = this.targetY;
-                this.animation = this.stopAnim;
             }
             else if(Math.abs(offset) > 10){
                 this.rot = Math.atan2(offsetY,offsetX) / Math.PI * 180 + 180
@@ -705,7 +671,6 @@ class SpaceShip extends GameObject {
         else{
             this.targetVectorX = 0;
             this.targetVectorY = 0;
-            this.animation = this.stopAnim;
         }
     }
 
@@ -781,7 +746,7 @@ class BangParticle extends GameObject{
         super();
         this.game = game;
         
-        this.animation = new Line(game, UntitledGame.spriteDefinition.BANG,"Bang",6,12, this);
+        this.animation = new Animation(game, UntitledGame.spriteDefinition.BANG,"Bang",6,12, this);
             
         this.x = x; this.y = y;//연동
         this.lifeTime = 0.5;//연동
@@ -892,6 +857,8 @@ class SpaceMine extends GameObject{
     collision(){
         for(let s of this.game.spaceships)
         {
+            if(!s.useful)
+                continue;
             if(s.owner != this.game.playerID){
                 var offsetX = s.centerX - this.centerX;
                 var offsetY = s.centerY - this.centerY;
@@ -930,7 +897,7 @@ class ChemicalBullet extends GameObject{
         
         this.owner = owner; //연동
         this.animation = new Animation(game,
-            UntitledGame.spriteDefinition.CHEMICALSPACE_SHIP,"ChemicalBullet",1,2, this);
+            UntitledGame.spriteDefinition.CHEMICALBULLET,"ChemicalBullet",1,2, this);
             
         this.x = x; this.y = y; //연동
         this.centerX = 0; this.centerY = 0; //연동
@@ -970,21 +937,21 @@ class ChemicalBullet extends GameObject{
                 var offsetY = g.centerY - this.y;
                 
                 if(offsetX * offsetX + offsetY * offsetY < this.range * this.range){
-                    g.Damage(this.damage, this.owner);
-                    isUpt = true;
+                    g.Damage(this.damage, this.owner)
                     this.useful = false;
                 }
             }
         }
         for(let s of this.game.spaceships)
         {
+            if(!s.useful)
+                continue;
             if(s.owner != this.game.playerID){
                 var offsetX = s.centerX - this.x;
                 var offsetY = s.centerY - this.y;
 
                 if(offsetX * offsetX + offsetY * offsetY < this.range * this.range){
-                    s.Damage(this.damage, this.owner) // socket
-                    isUpt = true;
+                    s.Damage(this.damage, this.owner)
                     this.useful = false;
                 }
             }
@@ -1310,15 +1277,14 @@ class ExplainText extends GameObject{
         this.color = color;
     }
 }
-// 수정 대상
 class TimeText extends GameObject{
     constructor(game){
         super();
         this.game = game;
         this.context = game.context;
         
-        // this.nowTime = 0;  //연동 (너가 서버에서 뿌려준다고 했었지?)
-        // this.maxTime = 600;
+        this.nowTime = 0;
+        this.maxTime = 600;
 
         this.min = 0;
         this.sec = 0;
@@ -1480,9 +1446,9 @@ class ChatScreen extends GameObject{
 
         this.chatMode = false;
         this.target = 0;
-        
-        this.Chattings = []; //연동(수정 대상)
         this.textCount = 0;
+        
+        this.Chattings = []; //연동(채팅부분이라 너가 많이 고쳐야함)
         this.nowText = "";
     }
     render(){
@@ -1513,8 +1479,7 @@ class ChatScreen extends GameObject{
             this.startIndex = this.maxLine;
 
         var c = 0;
-        
-        for(var i = this.Chattings.length - 1;i > this.Chattings.length - this.startIndex - 1;i--){
+        for(var i = this.textCount - 1;i > this.textCount - this.startIndex - 1;i--){
             c++;
             if(this.Chattings[i][0] == '0'){
                 this.context.fillStyle = "#2ECCFA";
@@ -1634,7 +1599,7 @@ class AudioClip extends GameObject{
         this.useful = 0;
         
         //newClip.volume = this.game.setting_effect_volume;
-        newClip.play(); //정책때메 음악이 안나옴
+        //newClip.play(); //정책때메 음악이 안나옴
     }
     update(deltaTime){
         //newClip.volume = this.game.setting_effect_volume;
@@ -1655,7 +1620,7 @@ class Camera extends GameObject {
         this.x = 0; this.y=0;
         this.moveSpeed = 8;
         
-        this.carbon = 1000; //연동
+        this.carbon = 2000; //연동
 
         this.carbonPlus = 0;
         this.carbonUse = 0;
@@ -1679,7 +1644,7 @@ class Camera extends GameObject {
         }
         for(let s of this.game.spaceships)
         {
-            if(s.owner == this.game.playerID)
+            if(s.owner == this.game.playerID && s.useful)
                 this.carbonUse += s.useCoin;
         }
     }
@@ -1702,7 +1667,7 @@ class Camera extends GameObject {
                 this.x -= this.moveSpeed;
         }
             
-        if(this.carbon < -1000){
+        if(this.carbon < -1000 || this.game.isKeyStay('KeyO')){
             this.gameOver();
         }
 
@@ -1715,6 +1680,7 @@ class Camera extends GameObject {
     }
 
     carbonAdd(num){
+        socket.emit("carbonAdd", num);
         this.carbon += num;
     }
 
@@ -1726,12 +1692,12 @@ class Camera extends GameObject {
             }
         }
         for(let s of this.game.spaceships){
-            if(s.owner == this.game.playerID){
+            if(s.owner == this.game.playerID && s.useful){
                 s.Death(0)
             }
         }
         for(let m of this.game.Mines){
-            if(m.owner == this.game.playerID){
+            if(m.owner == this.game.playerID && m.useful){
                 m.damage = 0;
                 m.useful = false;
             }
@@ -1743,8 +1709,10 @@ class UntitledGame {
     constructor(canvasElement) {
         this.canvas = canvasElement;
         this.context = canvasElement.getContext('2d');
+        this.playerID = localPlayerID; //플레이어 아이디
+
         this.uiScale = 0;
-        {
+
             this.EllipseGalaxy_Image = new Array(5);
             for(var i = 0;i<5;i++){
                 this.EllipseGalaxy_Image[i] = new Image();
@@ -1813,10 +1781,9 @@ class UntitledGame {
                 this.EndText_Image[i] = new Image();
                 this.EndText_Image[i].src = 'Resources/' + (i + 1) + 'EndText.png';
             }
-        }
-
         this.teamColor = ["#2ECCFA", "#58FA82", "#FA5882", "Yellow"];
 
+        this.chatScreen = new ChatScreen(this);
         
         this.nowClicked_Obj;
 
@@ -1826,12 +1793,14 @@ class UntitledGame {
         this.SpaceShipButtons = [];
         this.Mines = [];
         this.Particles = [];
-
+{
         this.sounds = [];
         this.galaxys = [];
         this.spaceships = [];
         this.bullets = [];
         this.stayKeys = {};
+
+        this.delayEsc = 0;
         
         this.paused = false;
         this.canControl = true;
@@ -1845,16 +1814,18 @@ class UntitledGame {
         this.gameEnd = false;
         this.gameendAnimTime = 0;
         
+
         window.addEventListener('blur', this.onVisibilityChange.bind(this));
         window.addEventListener('focus', this.onVisibilityChange.bind(this));
         document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
         window.addEventListener('keydown', this.onKeyDown.bind(this));
         window.addEventListener('keyup', this.onKeyUp.bind(this));
+        }
     }
 
     realPlay() {
-        this.playerID = _playerID; //플레이어 아이디
-        
+        this.playerID = localPlayerID; //플레이어 아이디
+
         this.camera1 = new Camera(this, 1); this.cameras.push(this.camera1);
         this.camera2 = new Camera(this, 2); this.cameras.push(this.camera2);
         this.camera3 = new Camera(this, 3); this.cameras.push(this.camera3);
@@ -1863,7 +1834,7 @@ class UntitledGame {
         this.camera2.playerName = pName[1]; this.camera2.x = this.camera4.x = this.canvas.width - UntitledGame.config.MAP_WIDTH
         this.camera3.playerName = pName[2]; this.camera1.y = this.camera2.y = 0
         this.camera4.playerName = pName[3]; this.camera3.y = this.camera4.y = this.canvas.height - UntitledGame.config.MAP_HEIGHT;
-        
+
         this.mainCamera = this.cameras[this.playerID - 1];
 
         this.infoUI1 = new PlayerInfo(this); this.UIs.push(this.infoUI1);
@@ -1883,17 +1854,15 @@ class UntitledGame {
         this.ExplainUI = new ExplainText(this, 250); this.UIs.push(this.ExplainUI);
         this.TimeUI = new TimeText(this); this.UIs.push(this.TimeUI);
 
-
+        
         this.mouseX = 0, this.mouseY = 0;
 
         this.rankUI1 = new RankBoard(this); this.UIs.push(this.rankUI1);
         this.carbonUI1 = new CarbonBoard(this); this.UIs.push(this.carbonUI1);
 
-        this.chatScreen = new ChatScreen(this);
-
         this.galaxyGenerate();
     }
-
+    
     pause() {
         this.paused = true;
     }
@@ -1932,9 +1901,18 @@ class UntitledGame {
         if(this.gameEnd){
             for(let c of this.cameras) c.render();
             for(let g of this.galaxys) g.render();
-            for(let s of this.spaceships) s.render();
-            for(let p of this.Particles) p.render();
-            for(let m of this.Mines)  m.render();
+            for(let s of this.spaceships) {
+                if(s.useful)
+                s.render();
+            }
+            for(let p of this.Particles){
+                if(p.useful)
+                p.render();
+            }
+            for(let m of this.Mines){
+                if(m.useful)
+                m.render();
+            }
             for(let b of this.bullets) b.render();
             
             //게임 끝난후 애님
@@ -2021,23 +1999,59 @@ class UntitledGame {
         for(let ui of this.UIs)
             ui.render();
 
-        for(let b of this.Buttons)
-            b.render();
-            
-        for(let sb of this.SpaceShipButtons)
-            sb.render();
+        if(!this.mainCamera.isDead){
+            for(let b of this.Buttons)
+                b.render();
+                
+            for(let sb of this.SpaceShipButtons)
+                sb.render();
+        }
             
         this.chatScreen.render();
+
+        if(this.mainCamera.isDead){
+            this.context.font = "35px 나눔바른펜";
+            this.context.fillStyle = "#2E9AFE";
+            this.context.textBaseline = 'top';
+            this.context.textAlign = 'center';
+            this.context.fillText("파산했습니다", 
+            this.canvas.width * 0.5, 30 * this.canvas.width / 1465);
+        }
+    }
+
+    getUpdateData(data) {
+        for(var i = 0;i < 4;i++) {
+            this.cameras[i].carbon = data[i].data.carbon;
+        }
+        // for (var i in this.galaxys) {
+        //     this.galaxys[i].generateTime = data.galaxys[i].generateTime;
+        //     this.galaxys[i].owner = data.galaxys[i].owner;
+        //     this.galaxys[i].maxDefensiveForce = data.galaxys[i].maxDefensiveForce;
+        //     this.galaxys[i].generativForce = data.galaxys[i].generativForce;
+        //     this.galaxys[i].defensiveForce = data.galaxys[i].defensiveForce;
+        //     this.galaxys[i].terraforming = data.galaxys[i].terraforming;
+        //     this.galaxys[i].beamBarrier = data.galaxys[i].beamBarrier;
+        // }
     }
 
     update(deltaTime) {
-        this.socketUpdate();
-
         this.uiScale = this.canvas.width / 1465;
 
         if(this.gameEnd){
             this.gameendAnimTime += deltaTime;
             return;
+        }
+        if(this.mainCamera.isDead)
+        { 
+            this.context.font = "25px 나눔바른펜";
+            this.context.fillStyle = "Red";
+            this.context.textBaseline = 'top';
+            this.context.textAlign = 'center';
+            this.context.fillText("ESC를 눌러 게임에서 나갈 수 있습니다", 
+            this.canvas.width * 0.5, this.canvas.height - 250 * this.canvas.width / 1465);
+
+            if(this.isKeyStay('Escape'))
+                BackToMain();
         }
 
         for(let c of this.cameras)
@@ -2059,11 +2073,13 @@ class UntitledGame {
         for(let ui of this.UIs)
             ui.update(deltaTime);
 
-        for(let b of this.Buttons)
-            b.update(deltaTime);
+        if(!this.mainCamera.isDead){
+            for(let b of this.Buttons)
+                b.update(deltaTime);
             
-        for(let sb of this.SpaceShipButtons)
-            sb.update(deltaTime);
+            for(let sb of this.SpaceShipButtons)
+                sb.update(deltaTime);
+        }
 
         for(let m of this.Mines){
             if(m.useful)
@@ -2088,31 +2104,6 @@ class UntitledGame {
                 return obj.useful;
             }
         );
-    }
-    
-    socketUpdate() {
-        this.cameraUpdate();
-    }
-
-    cameraUpdate() {
-        var carbon, isDead;
-        switch(localPlayerID) {
-            case 1: carbon = this.camera1.carbon, isDead = this.camera1.isDead; break;
-            case 2: carbon = this.camera2.carbon, isDead = this.camera2.isDead; break;
-            case 3: carbon = this.camera3.carbon, isDead = this.camera3.isDead; break;
-            case 4: carbon = this.camera4.carbon, isDead = this.camera4.isDead; break;
-        }
-        var data = {
-            id: localPlayerID,
-            idx: localRoomIdx,
-            carbon:carbon,
-            isDead:isDead
-        }
-        socket.emit("cameraUpdate", data);
-    }
-
-    galaxyUpdate() {
-
     }
 
     scheduleNextUpdate() {
@@ -2166,8 +2157,6 @@ class UntitledGame {
             return;
         }
         var flag = false;
-        if(this.mainCamera == null)
-            return;
         var mousePosX = event.x - this.mainCamera.x;
         var mousePosY = event.y - this.mainCamera.y;
 
@@ -2296,7 +2285,7 @@ class UntitledGame {
     }
 
     rightmouseClick(event){
-        if(this.gameEnd || this.mainCamera == null)
+        if(this.gameEnd)
             return;
         var flag = false;
         var mousePosX = event.x - this.mainCamera.x;
@@ -2452,54 +2441,47 @@ class UntitledGame {
         newGalaxy.x = 2320; newGalaxy.y = 1180;
         }
 
-        console.log("Generate!");
-        if (localPlayerID === 1) {
+        
+        var newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera1.playerName); this.spaceships.push(newSpaceShip);
+        newSpaceShip.x = 450;  newSpaceShip.y = 450; newSpaceShip.owner = 1;
+        newSpaceShip.targetX = 450;  newSpaceShip.targetY = 450;
+
+        for(var i = 0;i<8;i++){
             var newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera1.playerName); this.spaceships.push(newSpaceShip);
-            newSpaceShip.x = 450;  newSpaceShip.y = 450; newSpaceShip.owner = 1;
-            newSpaceShip.targetX = 450;  newSpaceShip.targetY = 450;
-    
-            for(var i = 0;i<8;i++){
-                var newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera1.playerName); this.spaceships.push(newSpaceShip);
-                newSpaceShip.owner = 1;
-                newSpaceShip.useful = false;
-            }
-        }
-        if (localPlayerID === 2) {
-            newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera2.playerName); this.spaceships.push(newSpaceShip);
-            newSpaceShip.x = UntitledGame.config.MAP_WIDTH - 570;  newSpaceShip.y = 450; newSpaceShip.owner = 2;
-            newSpaceShip.targetX = UntitledGame.config.MAP_WIDTH - 570;  newSpaceShip.targetY = 450;
-            
-            for(var i = 0;i<8;i++){
-                var newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera2.playerName); this.spaceships.push(newSpaceShip);
-                newSpaceShip.owner = 2;
-                newSpaceShip.useful = false;
-            }
+            newSpaceShip.owner = 1;
+            newSpaceShip.useful = false;
         }
         
-        if (localPlayerID === 3) {
+        newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera2.playerName); this.spaceships.push(newSpaceShip);
+        newSpaceShip.x = UntitledGame.config.MAP_WIDTH - 570;  newSpaceShip.y = 450; newSpaceShip.owner = 2;
+        newSpaceShip.targetX = UntitledGame.config.MAP_WIDTH - 570;  newSpaceShip.targetY = 450;
+        
+        for(var i = 0;i<8;i++){
+            var newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera1.playerName); this.spaceships.push(newSpaceShip);
+            newSpaceShip.owner = 2;
+            newSpaceShip.useful = false;
+        }
+        
+        newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera3.playerName); this.spaceships.push(newSpaceShip);
+        newSpaceShip.x = 450;  newSpaceShip.y = UntitledGame.config.MAP_HEIGHT - 570; newSpaceShip.owner = 3;
+        newSpaceShip.targetX = 450;  newSpaceShip.targetY = UntitledGame.config.MAP_HEIGHT - 570;
+        
+        for(var i = 0;i<8;i++){
             newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera3.playerName); this.spaceships.push(newSpaceShip);
-            newSpaceShip.x = 450;  newSpaceShip.y = UntitledGame.config.MAP_HEIGHT - 570; newSpaceShip.owner = 3;
-            newSpaceShip.targetX = 450;  newSpaceShip.targetY = UntitledGame.config.MAP_HEIGHT - 570;
-            
-            for(var i = 0;i<8;i++){
-                newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera3.playerName); this.spaceships.push(newSpaceShip);
-                newSpaceShip.owner = 3;
-                newSpaceShip.useful = false;
-            }
+            newSpaceShip.owner = 3;
+            newSpaceShip.useful = false;
         }
         
-        if (localPlayerID === 4) {
+        newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera4.playerName); this.spaceships.push(newSpaceShip);
+        newSpaceShip.x = UntitledGame.config.MAP_WIDTH - 570;  
+        newSpaceShip.y = UntitledGame.config.MAP_HEIGHT - 570; newSpaceShip.owner = 4;
+        newSpaceShip.targetX = UntitledGame.config.MAP_WIDTH - 570;  
+        newSpaceShip.targetY = UntitledGame.config.MAP_HEIGHT - 570;
+        
+        for(var i = 0;i<8;i++){
             newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera4.playerName); this.spaceships.push(newSpaceShip);
-            newSpaceShip.x = UntitledGame.config.MAP_WIDTH - 570;  
-            newSpaceShip.y = UntitledGame.config.MAP_HEIGHT - 570; newSpaceShip.owner = 4;
-            newSpaceShip.targetX = UntitledGame.config.MAP_WIDTH - 570;  
-            newSpaceShip.targetY = UntitledGame.config.MAP_HEIGHT - 570;
-            
-            for(var i = 0;i<8;i++){
-                newSpaceShip = new SpaceShip(this, "화학 우주선", this.camera4.playerName); this.spaceships.push(newSpaceShip);
-                newSpaceShip.owner = 4;
-                newSpaceShip.useful = false;
-            }
+            newSpaceShip.owner = 4;
+            newSpaceShip.useful = false;
         }
         
         for(var i = 0;i<30;i++){
@@ -2570,10 +2552,17 @@ UntitledGame.spriteDefinition = {//x, y, width, height
 //메인으로 돌아가기
 function BackToMain(){
     socket.emit("endFastGame2Server", localRoomIdx);
+    console.log("BackToMain")
 }
 
+//연결 끊김
+function Disconnected(){
+    console.log("Disconnected")
+}
+
+//파산
 function Broken(){
-    // 파산
+    console.log("Broken")
 }
 
 //이름 생성기(짜피 이름이니까 서버에서 안맞춰줘도 되고 맞춰줘도 되고)
@@ -2594,7 +2583,6 @@ function GalaxyName(index){
     }
 }
 
-// 게임 설정
 UntitledGame.config = {
     PLANET_RESOURCE_TERM : 1,
     MAP_WIDTH : 3840,
@@ -2622,7 +2610,6 @@ var isUpt = false;
 // socket events
 socket.on("ready", _data => {
     if (localRoomname === _data.roomname) {
-        _playerID = localPlayerID;
         var data = {
             id: localPlayerID,
             name: _data.pName[localPlayerID - 1],
@@ -2636,7 +2623,7 @@ socket.on("ready", _data => {
 socket.on("updatePlayerList", list => {
     for (var l of list)
         pName.push(l);
-    console.log(pName);
+    console.log(list);
 });
 
 socket.on("play", () => {
@@ -2645,6 +2632,10 @@ socket.on("play", () => {
         $inGamePage.show();
         game.play();
     }
+});
+
+socket.on("playerUpdate", data => {
+    game.getUpdateData(data);
 });
 
 window.onresize = function(){
@@ -2677,7 +2668,7 @@ window.onload = function () {
 
     canvas.addEventListener("mousemove", function(event)
     {
-        //game.mouseX = event.x - game.mainCamera.x;
-        //game.mouseY = event.y - game.mainCamera.y;
+        game.mouseX = event.x - game.mainCamera.x;
+        game.mouseY = event.y - game.mainCamera.y;
     });
 };
